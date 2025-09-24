@@ -14,12 +14,7 @@ fn main() {
 
     println!("The query is: {}",conf.query);
     println!("The file path is: {}",conf.file_path);
-
-    let contents = fs::read_to_string(conf.file_path)
-        .expect("should been able to read this file");
-
-    println!("with test:\n{contents}");
-
+    run(conf);
 }
 
 struct Config {
@@ -58,3 +53,9 @@ impl Config {
 //         file_path: file_path,
 //     }
 // }
+
+fn run(conf: Config) {
+    let contents  = fs::read_to_string(conf.file_path)
+        .expect("Shouble be able to read file");
+    println!("the contents is {contents}");
+}
