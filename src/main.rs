@@ -1,4 +1,4 @@
-use std::{env, fs, process};
+use std::{env, error::Error, fs, process};
 fn main() {
     let args: Vec<String> = env::args().collect();
     //dbg!(args);
@@ -14,7 +14,10 @@ fn main() {
 
     println!("The query is: {}",conf.query);
     println!("The file path is: {}",conf.file_path);
-    run(conf);
+    if let Err(e) = run(conf) {
+        println!("Application error: {e}");
+        process::exit(1)
+    }
 }
 
 struct Config {
@@ -54,8 +57,14 @@ impl Config {
 //     }
 // }
 
-fn run(conf: Config) {
-    let contents  = fs::read_to_string(conf.file_path)
-        .expect("Shouble be able to read file");
+// fn run(conf: Config) {
+//     let contents  = fs::read_to_string(conf.file_path)
+//         .expect("Shouble be able to read file");
+//     println!("the contents is {contents}");
+// }
+
+fn run(conf: Config) -> Result<(), Box<dyn Error>> {
+    let contents  = fs::read_to_string(conf.file_path)?;
     println!("the contents is {contents}");
+    Ok(())
 }
