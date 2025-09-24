@@ -1,10 +1,15 @@
-use std::{env, fs};
+use std::{env, fs, process};
 fn main() {
     let args: Vec<String> = env::args().collect();
     //dbg!(args);
 
     // let conf  =  parse_conf(&args);
-    let conf =  Config::new(&args);
+    //let conf =  Config::new(&args);
+    let conf = Config::build(&args)
+        .unwrap_or_else(|err| {
+            println!("err is {err}, and exit with code 101");
+            process::exit(101)
+        });
 
 
     println!("The query is: {}",conf.query);
@@ -23,10 +28,20 @@ struct Config {
 }
 
 impl Config {
-    fn new(args: &[String]) -> Config {
-        Config { 
-            query: args[1].clone(),
-            file_path: args[2].clone() 
+    // fn new(args: &[String]) -> Config {
+    //     if args.len() <=2 {
+    //         panic!("error to ceate Config since no enough args")
+    //     }
+    //     Config { 
+    //         query: args[1].clone(),
+    //         file_path: args[2].clone() 
+    //     }
+    // }
+    fn build(args: &[String]) -> Result<Config, &'static str> {
+        if args.len() <= 2 {
+            Err("no enouht args")
+        } else {
+            Ok(Config { query: args[1].clone(), file_path: args[2].clone() })
         }
     }
 }
