@@ -66,7 +66,7 @@ impl Config {
 
 fn run(conf: Config) -> Result<(), Box<dyn Error>> {
     let contents  = fs::read_to_string(conf.file_path)?;
-    println!("the contents is {contents}");
+    //println!("the contents is {contents}");
     for line in search(&conf.query, &contents) {
         println!("{line}")
     }
