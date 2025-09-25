@@ -1,3 +1,19 @@
-pub fn search<'a>(query: &str, content: &'a str ) -> Vec<&'a str> {
-    unimplemented!();
+pub fn search<'a>(query: &str, contents: &'a str ) -> Vec<&'a str> {
+    vec![]
+}
+
+#[cfg(test)]
+mod tests{
+    use super::*;
+
+    #[test]
+    fn one_result() {
+        let query = "duct";
+        let contents = "\
+Rust:
+safe, fast, productiove.
+Pick there.";
+        assert_eq!(vec!["safe, fast, productiove."], search(query, contents));
+    }
+
 }
