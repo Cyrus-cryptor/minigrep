@@ -1,5 +1,5 @@
 use std::{env, error::Error, fs, process};
-use minigrep::search;
+use minigrep::{search, search_case_insensitive};
 fn main() {
     let args: Vec<String> = env::args().collect();
     //dbg!(args);
@@ -24,6 +24,7 @@ fn main() {
 struct Config {
     query: String,
     file_path: String,
+    ignore_case: bool,
 }
 
 impl Config {
@@ -40,7 +41,8 @@ impl Config {
         if args.len() <= 2 {
             Err("no enouht args")
         } else {
-            Ok(Config { query: args[1].clone(), file_path: args[2].clone() })
+            let ignore_case = env::var("IGNORE_CASE").is_ok();
+            Ok(Config { query: args[1].clone(), file_path: args[2].clone(), ignore_case: ignore_case, })
         }
     }
 }
@@ -66,9 +68,13 @@ impl Config {
 
 fn run(conf: Config) -> Result<(), Box<dyn Error>> {
     let contents  = fs::read_to_string(conf.file_path)?;
-    //println!("the contents is {contents}");
-    for line in search(&conf.query, &contents) {
+    
+    for line in if conf.ignore_case {
+        search_case_insensitive(&conf.query, &contents)
+    } else {
+        search(&conf.query, &contents)
+    } {
         println!("{line}")
-    }
+    };
     Ok(())
 }
