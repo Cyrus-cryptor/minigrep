@@ -1,22 +1,20 @@
-use std::{env, error::Error, fs, process};
 use minigrep::{search, search_case_insensitive};
+use std::{env, error::Error, fs, process};
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let args = env::args();
     //dbg!(args);
 
     // let conf  =  parse_conf(&args);
     //let conf =  Config::new(&args);
-    let conf = Config::build(&args)
-        .unwrap_or_else(|err| {
-            println!("err is {err}, and exit with code 101");
-            process::exit(101)
-        });
+    let conf = Config::build(args).unwrap_or_else(|err| {
+        eprintln!("problem parsing arguments: {err }");
+        process::exit(101)
+    });
 
-
-    println!("The query is: {}",conf.query);
-    println!("The file path is: {}",conf.file_path);
+    //println!("The query is: {}",conf.query);
+    //println!("The file path is: {}",conf.file_path);
     if let Err(e) = run(conf) {
-        println!("Application error: {e}");
+        eprintln!("application error: {e}");
         process::exit(1)
     }
 }
@@ -32,18 +30,42 @@ impl Config {
     //     if args.len() <=2 {
     //         panic!("error to ceate Config since no enough args")
     //     }
-    //     Config { 
+    //     Config {
     //         query: args[1].clone(),
-    //         file_path: args[2].clone() 
+    //         file_path: args[2].clone()
     //     }
     // }
-    fn build(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() <= 2 {
-            Err("no enouht args")
-        } else {
-            let ignore_case = env::var("IGNORE_CASE").is_ok();
-            Ok(Config { query: args[1].clone(), file_path: args[2].clone(), ignore_case: ignore_case, })
-        }
+    fn build(mut args: impl Iterator<Item = String>) -> Result<Config, &'static str> {
+        args.next();
+
+        let query = match args.next() {
+            Some(query) => query,
+            None => return Err("NO such args"),
+        };
+
+        let file_path = match args.next() {
+            Some(file_path) => file_path,
+            None => return Err("No such args"),
+        };
+
+        let ignore_case = env::var("IGNORE_CASE").is_ok();
+
+        Ok(Config {
+            query,
+            file_path,
+            ignore_case,
+        })
+
+        // if args.len() <= 2 {
+        //     return Err("no enouht args");
+        // }
+
+        // let ignore_case = env::var("IGNORE_CASE").is_ok();
+        // Ok(Config {
+        //     query: args[1].clone(),
+        //     file_path: args[2].clone(),
+        //     ignore_case: ignore_case,
+        // })
     }
 }
 
@@ -67,14 +89,14 @@ impl Config {
 // }
 
 fn run(conf: Config) -> Result<(), Box<dyn Error>> {
-    let contents  = fs::read_to_string(conf.file_path)?;
-    
+    let contents = fs::read_to_string(conf.file_path)?;
+
     for line in if conf.ignore_case {
         search_case_insensitive(&conf.query, &contents)
     } else {
         search(&conf.query, &contents)
     } {
         println!("{line}")
-    };
+    }
     Ok(())
 }
