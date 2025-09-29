@@ -91,12 +91,38 @@ impl Config {
 fn run(conf: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(conf.file_path)?;
 
-    for line in if conf.ignore_case {
+    // 方法1：使用 if-else 表达式（推荐）
+    let results = if conf.ignore_case {
         search_case_insensitive(&conf.query, &contents)
     } else {
         search(&conf.query, &contents)
-    } {
-        println!("{line}")
+    };
+
+    for line in results {
+        println!("{line}");
     }
+
+    // 方法2：直接内联（最简洁）
+    // for line in if conf.ignore_case {
+    //     search_case_insensitive(&conf.query, &contents)
+    // } else {
+    //     search(&conf.query, &contents)
+    // } {
+    //     println!("{line}");
+    // }
+
+    // 方法3：使用 match 表达式
+    // let results = match conf.ignore_case {
+    //     true => search_case_insensitive(&conf.query, &contents),
+    //     false => search(&conf.query, &contents),
+    // };
+    // results.iter().for_each(|line| println!("{line}"));
+
+    // 方法4：使用函数式风格
+    (if conf.ignore_case {
+        search_case_insensitive(&conf.query, &contents)
+    } else {
+        search(&conf.query, &contents)
+    }).iter().for_each(|line| println!("{line}"));
     Ok(())
 }
